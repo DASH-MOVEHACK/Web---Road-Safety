@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Road Safety</title>
+    <style>
+        #map {
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+</head>
+<body>
+<h1>Road Safety Rocxxx!</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <label for="stop">Enter Stop Name</label>
+    <select name="stopName" id="stop">
+        {% for stop in stopList %}
+            <option value="{{ stop }}">{{ stop }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="event">Enter Stop Name</label>
+    <select name="eventName" id="event">
+        {% for event in eventList %}
+            <option value="{{ event }}">{{ event }}</option>
+        {% endfor %}
+    </select>
+
+    <input type="submit">
+</form>
+
+<div id="map"></div>
+
+{% if data %}
+<script>
+    console.log('Hello');
+
+    latList = [];
+    longList = [];
+    col = [];
+
+
+    {% for lat in lats %}
+        latList.push({{ lat }});
+    {% endfor %}
+
+    {% for long in longs %}
+        longList.push({{ long }});
+    {% endfor %}
+
+    {% for name in names %}
+        n = "{{ name }}";
+        if (n === "Idling")
+            col.push("#FF0000");
+        else if (n === "Harsh Braking")
+            col.push("#CDDC39");
+        else if (n === "Harsh Accelaration")
+            colpush("#03A9F4");
+        else if (n === "Speeding")
+            col.push("#1B5E20");
+    {% endfor %}
+
+
+    var citymap = [];
+
+    for (var i =0; i<latList.length;i++){
+        citymap.push({
+           center: {lat: latList[i], lng: longList[i]},
+           color: col[i]
+        });
+
+    }
+    console.log(citymap);
+
+    function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 18,
+            center: {lat: {{ lats.1 }}, lng: {{ longs.1 }} },
+            mapTypeId: 'terrain'
+        });
+
+        for (var city in citymap) {
+            var cityCircle = new google.maps.Circle({
+                strokeColor: citymap[city].color,
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: citymap[city].color,
+                fillOpacity: 0.35,
+                map: map,
+                center: citymap[city].center,
+                radius: 7
+            });
+        }
+    }
+</script>
+
+
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=<key>">
+</script>
+{% endif %}
+
+</body>
+</html>
